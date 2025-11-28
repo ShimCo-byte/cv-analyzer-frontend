@@ -240,7 +240,19 @@ When describing projects:
 ];
 
 export default function CareerTipsPage() {
-  const [expandedTip, setExpandedTip] = useState<number | null>(null);
+  const [expandedTips, setExpandedTips] = useState<Set<number>>(new Set());
+
+  const toggleTip = (tipId: number) => {
+    setExpandedTips(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(tipId)) {
+        newSet.delete(tipId);
+      } else {
+        newSet.add(tipId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -276,12 +288,12 @@ export default function CareerTipsPage() {
                 </div>
 
                 <button
-                  onClick={() => setExpandedTip(expandedTip === tip.id ? null : tip.id)}
+                  onClick={() => toggleTip(tip.id)}
                   className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
                 >
-                  {expandedTip === tip.id ? 'Show less' : 'Read more'}
+                  {expandedTips.has(tip.id) ? 'Show less' : 'Read more'}
                   <svg
-                    className={`w-4 h-4 transition-transform ${expandedTip === tip.id ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-transform ${expandedTips.has(tip.id) ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -290,7 +302,7 @@ export default function CareerTipsPage() {
                   </svg>
                 </button>
 
-                {expandedTip === tip.id && (
+                {expandedTips.has(tip.id) && (
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="text-gray-700 text-sm whitespace-pre-line leading-relaxed">
                       {tip.content}
