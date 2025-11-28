@@ -54,13 +54,17 @@ function JobsPageContent() {
   // Filters
   const [selectedType, setSelectedType] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedEmployment, setSelectedEmployment] = useState('');
+  const [selectedExperience, setSelectedExperience] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Filter jobs for matched mode
-  const filteredJobs = useMemo(() => {
-    if (!matchedMode) return jobs;
+  // Get user's country from profile
+  const userCountry = userProfile?.location?.country?.toLowerCase() || '';
 
+  // Filter jobs
+  const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
+      // Search query filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesSearch = job.title.toLowerCase().includes(query) ||
@@ -69,20 +73,43 @@ function JobsPageContent() {
         if (!matchesSearch) return false;
       }
 
+      // Job type filter (Frontend, Backend, etc.)
       if (selectedType && job.type !== selectedType) return false;
 
+      // Experience level filter
+      if (selectedExperience && job.experienceLevel !== selectedExperience) return false;
+
+      // Location filter
       if (selectedLocation) {
         const loc = job.location.toLowerCase();
         if (selectedLocation === 'remote' && !loc.includes('remote')) return false;
-        if (selectedLocation === 'eu') {
-          const euCountries = ['europe', 'germany', 'france', 'netherlands', 'spain', 'italy', 'poland', 'austria', 'slovakia', 'czech'];
-          if (!euCountries.some(c => loc.includes(c))) return false;
+        if (selectedLocation === 'my-country' && userCountry) {
+          if (!loc.includes(userCountry)) return false;
         }
+        if (selectedLocation === 'eu') {
+          const euCountries = ['europe', 'germany', 'france', 'netherlands', 'spain', 'italy', 'poland', 'austria', 'slovakia', 'czech', 'belgium', 'ireland', 'sweden', 'denmark', 'finland', 'portugal', 'hungary', 'romania', 'bulgaria', 'croatia', 'slovenia', 'estonia', 'latvia', 'lithuania', 'luxembourg', 'malta', 'cyprus', 'greece'];
+          if (!euCountries.some(c => loc.includes(c)) && !loc.includes('eu') && !loc.includes('europe')) return false;
+        }
+        if (selectedLocation === 'usa') {
+          if (!loc.includes('usa') && !loc.includes('united states') && !loc.includes('us') && !loc.includes('america')) return false;
+        }
+        if (selectedLocation === 'worldwide') {
+          // No filter needed - show all
+        }
+      }
+
+      // Employment type filter (simulated based on description/title)
+      if (selectedEmployment) {
+        const desc = (job.description + ' ' + job.title).toLowerCase();
+        if (selectedEmployment === 'full-time' && (desc.includes('part-time') || desc.includes('part time') || desc.includes('contract') || desc.includes('freelance'))) return false;
+        if (selectedEmployment === 'part-time' && !desc.includes('part-time') && !desc.includes('part time')) return false;
+        if (selectedEmployment === 'contract' && !desc.includes('contract') && !desc.includes('freelance') && !desc.includes('contractor')) return false;
+        if (selectedEmployment === 'internship' && !desc.includes('intern') && !desc.includes('internship') && !desc.includes('trainee')) return false;
       }
 
       return true;
     });
-  }, [jobs, matchedMode, searchQuery, selectedType, selectedLocation]);
+  }, [jobs, searchQuery, selectedType, selectedLocation, selectedEmployment, selectedExperience, userCountry]);
 
   useEffect(() => {
     if (fromProfile) {
@@ -216,7 +243,7 @@ function JobsPageContent() {
     return 'bg-yellow-100 text-yellow-800 border-yellow-300';
   };
 
-  const displayJobs = matchedMode ? filteredJobs : jobs;
+  const displayJobs = filteredJobs;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -233,8 +260,8 @@ function JobsPageContent() {
               {stats && (
                 <p className="text-gray-600 mt-2">
                   {matchedMode
-                    ? `${jobs.length} matches out of ${stats.totalJobs} positions`
-                    : `${stats.totalJobs} positions from ${stats.companies} companies`
+                    ? `Showing ${displayJobs.length} of ${jobs.length} matches`
+                    : `Showing ${displayJobs.length} of ${stats.totalJobs} positions`
                   }
                 </p>
               )}
@@ -263,48 +290,124 @@ function JobsPageContent() {
       <div className="container mx-auto px-4 py-8">
         {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-wrap items-center gap-4">
+          {/* Search Bar */}
+          <div className="mb-4">
             <input
               type="text"
-              placeholder="Search jobs..."
+              placeholder="Search by job title, company, or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
+          </div>
 
+          {/* Filter Row */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Location Filter */}
             <select
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm"
             >
               <option value="">All Locations</option>
-              <option value="remote">Remote</option>
-              <option value="eu">Europe</option>
+              <option value="remote">Remote Only</option>
+              {userCountry && <option value="my-country">My Country ({userProfile?.location?.country})</option>}
+              <option value="eu">Europe (EU)</option>
+              <option value="usa">United States</option>
+              <option value="worldwide">Worldwide</option>
             </select>
 
+            {/* Employment Type Filter */}
+            <select
+              value={selectedEmployment}
+              onChange={(e) => setSelectedEmployment(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm"
+            >
+              <option value="">All Employment Types</option>
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="contract">Contract / Freelance</option>
+              <option value="internship">Internship</option>
+            </select>
+
+            {/* Job Category Filter */}
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm"
             >
-              <option value="">All Types</option>
+              <option value="">All Categories</option>
               <option value="Frontend">Frontend</option>
               <option value="Backend">Backend</option>
               <option value="Full Stack">Full Stack</option>
               <option value="DevOps">DevOps</option>
-              <option value="Data">Data</option>
+              <option value="Data">Data / AI / ML</option>
               <option value="Mobile">Mobile</option>
             </select>
 
-            {(searchQuery || selectedType || selectedLocation) && (
+            {/* Experience Level Filter */}
+            <select
+              value={selectedExperience}
+              onChange={(e) => setSelectedExperience(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm"
+            >
+              <option value="">All Levels</option>
+              <option value="Junior">Junior / Entry Level</option>
+              <option value="Mid">Mid Level</option>
+              <option value="Senior">Senior / Lead</option>
+            </select>
+
+            {/* Clear Filters */}
+            {(searchQuery || selectedType || selectedLocation || selectedEmployment || selectedExperience) && (
               <button
-                onClick={() => { setSearchQuery(''); setSelectedType(''); setSelectedLocation(''); }}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedType('');
+                  setSelectedLocation('');
+                  setSelectedEmployment('');
+                  setSelectedExperience('');
+                }}
+                className="px-4 py-2 text-sm text-red-600 hover:text-red-700 font-medium hover:bg-red-50 rounded-lg transition-colors"
               >
-                Clear filters
+                Clear All
               </button>
             )}
           </div>
+
+          {/* Active Filters Display */}
+          {(selectedLocation || selectedEmployment || selectedType || selectedExperience) && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {selectedLocation && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                  {selectedLocation === 'remote' ? 'Remote' :
+                   selectedLocation === 'my-country' ? `${userProfile?.location?.country}` :
+                   selectedLocation === 'eu' ? 'Europe' :
+                   selectedLocation === 'usa' ? 'USA' : 'Worldwide'}
+                  <button onClick={() => setSelectedLocation('')} className="ml-1 hover:text-blue-900">&times;</button>
+                </span>
+              )}
+              {selectedEmployment && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  {selectedEmployment === 'full-time' ? 'Full-time' :
+                   selectedEmployment === 'part-time' ? 'Part-time' :
+                   selectedEmployment === 'contract' ? 'Contract' : 'Internship'}
+                  <button onClick={() => setSelectedEmployment('')} className="ml-1 hover:text-green-900">&times;</button>
+                </span>
+              )}
+              {selectedType && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                  {selectedType}
+                  <button onClick={() => setSelectedType('')} className="ml-1 hover:text-purple-900">&times;</button>
+                </span>
+              )}
+              {selectedExperience && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
+                  {selectedExperience}
+                  <button onClick={() => setSelectedExperience('')} className="ml-1 hover:text-orange-900">&times;</button>
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Loading */}
