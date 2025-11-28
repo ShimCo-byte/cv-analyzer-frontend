@@ -42,6 +42,7 @@ function JobsPageContent() {
   const [matchedMode, setMatchedMode] = useState(fromProfile);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [matchStats, setMatchStats] = useState<any>(null);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Modals
   const [showResumeModal, setShowResumeModal] = useState(false);
@@ -110,6 +111,19 @@ function JobsPageContent() {
       return true;
     });
   }, [jobs, searchQuery, selectedType, selectedLocation, selectedEmployment, selectedExperience, userCountry]);
+
+  // Load saved jobs from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('savedJobs');
+    if (saved) {
+      try {
+        const savedJobs = JSON.parse(saved);
+        setSavedJobIds(new Set(savedJobs.map((j: any) => j.id)));
+      } catch (e) {
+        console.error('Error loading saved jobs:', e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (fromProfile) {
@@ -187,6 +201,39 @@ function JobsPageContent() {
   const handleJobClick = (job: Job) => {
     setDetailJob(job);
     setShowJobDetail(true);
+  };
+
+  const toggleSaveJob = (job: Job, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+
+    const saved = localStorage.getItem('savedJobs');
+    let savedJobs: any[] = saved ? JSON.parse(saved) : [];
+
+    if (savedJobIds.has(job.id)) {
+      // Remove from saved
+      savedJobs = savedJobs.filter(j => j.id !== job.id);
+      setSavedJobIds(prev => {
+        const next = new Set(prev);
+        next.delete(job.id);
+        return next;
+      });
+    } else {
+      // Add to saved
+      savedJobs.push({
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        salary: job.salary,
+        matchScore: job.matchScore,
+        employmentType: job.type,
+        url: job.url,
+        savedAt: new Date().toISOString(),
+      });
+      setSavedJobIds(prev => new Set(prev).add(job.id));
+    }
+
+    localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
   };
 
   const handleGetResumeFromDetail = async () => {
@@ -495,6 +542,19 @@ function JobsPageContent() {
                     </span>
 
                     <div className="flex gap-2">
+                      <button
+                        onClick={(e) => toggleSaveJob(job, e)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          savedJobIds.has(job.id)
+                            ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        }`}
+                        title={savedJobIds.has(job.id) ? 'Remove from saved' : 'Save job'}
+                      >
+                        <svg className="w-5 h-5" fill={savedJobIds.has(job.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                      </button>
                       {userProfile && (
                         <button
                           onClick={(e) => { e.stopPropagation(); handleApplyNow(job); }}
@@ -541,6 +601,8 @@ function JobsPageContent() {
           job={detailJob}
           onGetResume={handleGetResumeFromDetail}
           hasProfile={!!userProfile}
+          isSaved={savedJobIds.has(detailJob.id)}
+          onToggleSave={() => toggleSaveJob(detailJob)}
         />
       )}
     </div>

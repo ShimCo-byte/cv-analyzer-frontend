@@ -27,9 +27,11 @@ interface JobDetailModalProps {
   job: Job;
   onGetResume?: () => void;
   hasProfile?: boolean;
+  isSaved?: boolean;
+  onToggleSave?: () => void;
 }
 
-export default function JobDetailModal({ isOpen, onClose, job, onGetResume, hasProfile }: JobDetailModalProps) {
+export default function JobDetailModal({ isOpen, onClose, job, onGetResume, hasProfile, isSaved, onToggleSave }: JobDetailModalProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -174,20 +176,37 @@ export default function JobDetailModal({ isOpen, onClose, job, onGetResume, hasP
 
           {/* Footer */}
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-end gap-3">
-              {hasProfile && onGetResume && (
-                <button onClick={onGetResume} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
-                  Get Tailored Resume
+            <div className="flex items-center justify-between">
+              {onToggleSave && (
+                <button
+                  onClick={onToggleSave}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isSaved
+                      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill={isSaved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                  {isSaved ? 'Saved' : 'Save Job'}
                 </button>
               )}
-              <a
-                href={job.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-              >
-                Apply Now
-              </a>
+              <div className="flex items-center gap-3">
+                {hasProfile && onGetResume && (
+                  <button onClick={onGetResume} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                    Get Tailored Resume
+                  </button>
+                )}
+                <a
+                  href={job.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  Apply Now
+                </a>
+              </div>
             </div>
           </div>
         </div>
