@@ -1067,7 +1067,7 @@ export default function ProfilePage() {
                             type="text"
                             value={lang.language}
                             onChange={(e) => {
-                              const newLanguages = [...profile.languages];
+                              const newLanguages = [...(profile.languages || [])];
                               newLanguages[index] = { ...newLanguages[index], language: e.target.value };
                               updateProfile({ languages: newLanguages });
                             }}
@@ -1079,7 +1079,7 @@ export default function ProfilePage() {
                           <select
                             value={lang.level}
                             onChange={(e) => {
-                              const newLanguages = [...profile.languages];
+                              const newLanguages = [...(profile.languages || [])];
                               newLanguages[index] = { ...newLanguages[index], level: e.target.value };
                               updateProfile({ languages: newLanguages });
                             }}
@@ -1095,7 +1095,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => {
-                            const newLanguages = profile.languages.filter((_, i) => i !== index);
+                            const newLanguages = (profile.languages || []).filter((_, i) => i !== index);
                             updateProfile({ languages: newLanguages });
                           }}
                           className="px-3 py-2 text-red-600 hover:text-red-700 text-sm font-medium"
