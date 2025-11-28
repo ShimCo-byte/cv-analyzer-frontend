@@ -9,6 +9,24 @@ import JobDetailModal from '../components/JobDetailModal';
 import Header from '../components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Chrome extension type declarations
+declare global {
+  interface Window {
+    chrome?: typeof chrome;
+  }
+}
+
+declare const chrome: {
+  runtime?: {
+    sendMessage: (
+      extensionId: string,
+      message: any,
+      callback: (response: any) => void
+    ) => void;
+    lastError?: { message: string };
+  };
+} | undefined;
+
 interface Job {
   id: string;
   title: string;
