@@ -87,10 +87,16 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [step, setStep] = useState(1);
   const totalSteps = 6;
   const [isEditing, setIsEditing] = useState(false);
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
 
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     country: '',
@@ -538,6 +544,15 @@ export default function ProfilePage() {
           className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-[1.02] transition-all font-medium text-lg"
         >
           View Matching Jobs
+        </button>
+        <button
+          onClick={handleLogout}
+          className="px-6 py-3 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Sign Out
         </button>
       </div>
     </div>
