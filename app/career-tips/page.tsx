@@ -240,14 +240,7 @@ When describing projects:
 ];
 
 export default function CareerTipsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [expandedTip, setExpandedTip] = useState<number | null>(null);
-
-  const categories = ['All', ...Array.from(new Set(tips.map(tip => tip.category)))];
-
-  const filteredTips = selectedCategory === 'All'
-    ? tips
-    : tips.filter(tip => tip.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -262,26 +255,10 @@ export default function CareerTipsPage() {
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                selectedCategory === category
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
 
         {/* Tips Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredTips.map((tip) => (
+          {tips.map((tip) => (
             <div
               key={tip.id}
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
