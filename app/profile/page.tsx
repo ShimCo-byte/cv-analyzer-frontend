@@ -89,6 +89,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const totalSteps = 6;
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
 
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     country: '',
@@ -225,6 +227,27 @@ export default function ProfilePage() {
 
     loadProfile();
   }, []);
+
+  // Check if profile has minimum required fields filled
+  const isProfileComplete = () => {
+    return !!(
+      profile.firstName &&
+      profile.lastName &&
+      profile.email &&
+      profile.country &&
+      profile.currentLocation &&
+      profile.experienceLevel &&
+      profile.primarySkills?.length &&
+      profile.primarySkills.length >= 3
+    );
+  };
+
+  // Set hasExistingProfile when profile loads
+  useEffect(() => {
+    if (!loading && isProfileComplete()) {
+      setHasExistingProfile(true);
+    }
+  }, [loading, profile]);
 
   // Countries and cities
   const countries = [
@@ -426,12 +449,118 @@ export default function ProfilePage() {
     }
   };
 
+  // Profile Summary Component (shown when profile exists and not editing)
+  const ProfileSummary = () => (
+    <div className="bg-white rounded-xl shadow-sm p-8">
+      {/* Profile Header */}
+      <div className="flex items-start justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+            {profile.firstName?.charAt(0)}{profile.lastName?.charAt(0)}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {profile.firstName} {profile.lastName}
+            </h1>
+            <p className="text-gray-600">{profile.desiredPosition || profile.currentPosition}</p>
+            <p className="text-sm text-gray-500">{profile.currentLocation}, {profile.country}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsEditing(true)}
+          className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+        >
+          Edit Profile
+        </button>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-blue-50 rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-blue-600">{profile.yearsOfExperience || 0}</p>
+          <p className="text-sm text-gray-600">Years Exp.</p>
+        </div>
+        <div className="bg-green-50 rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-green-600">{profile.primarySkills?.length || 0}</p>
+          <p className="text-sm text-gray-600">Skills</p>
+        </div>
+        <div className="bg-purple-50 rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-purple-600 capitalize">{profile.experienceLevel}</p>
+          <p className="text-sm text-gray-600">Level</p>
+        </div>
+        <div className="bg-orange-50 rounded-lg p-4 text-center">
+          <p className="text-2xl font-bold text-orange-600 capitalize">{profile.remotePreference}</p>
+          <p className="text-sm text-gray-600">Work Style</p>
+        </div>
+      </div>
+
+      {/* Skills */}
+      {profile.primarySkills && profile.primarySkills.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2">Skills</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.primarySkills.map((skill, idx) => (
+              <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                {skill}
+              </span>
+            ))}
+            {profile.secondarySkills?.map((skill, idx) => (
+              <span key={`s-${idx}`} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Job Types */}
+      {profile.jobTypes && profile.jobTypes.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2">Looking for</h3>
+          <div className="flex flex-wrap gap-2">
+            {profile.jobTypes.map((type, idx) => (
+              <span key={idx} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                {type}
+              </span>
+            ))}
+            {profile.employmentType?.map((type, idx) => (
+              <span key={`e-${idx}`} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                {type}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex gap-4 mt-8 pt-6 border-t border-gray-200">
+        <button
+          onClick={() => router.push('/jobs?fromProfile=true')}
+          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transform hover:scale-[1.02] transition-all font-medium text-lg"
+        >
+          View Matching Jobs
+        </button>
+        <button
+          onClick={() => setIsEditing(true)}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Update Profile
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Global Header */}
       <Header />
 
       <div className="container mx-auto px-4 max-w-4xl py-8">
+        {/* Show Profile Summary if profile exists and not editing */}
+        {hasExistingProfile && !isEditing ? (
+          <ProfileSummary />
+        ) : (
+        <>
         {/* Page Header */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex justify-between items-start">
@@ -1374,14 +1503,24 @@ export default function ProfilePage() {
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={prevStep}
-              disabled={step === 1}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
+            {hasExistingProfile && isEditing ? (
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={prevStep}
+                disabled={step === 1}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+            )}
 
             {step < totalSteps ? (
               <button
@@ -1402,6 +1541,8 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
