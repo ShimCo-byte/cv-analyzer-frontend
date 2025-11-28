@@ -63,16 +63,6 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/jobs"
-              className={`text-sm font-medium transition-colors ${
-                isActive('/jobs')
-                  ? 'text-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Browse Jobs
-            </Link>
-            <Link
               href="/profile"
               className={`text-sm font-medium transition-colors ${
                 isActive('/profile')
@@ -81,6 +71,16 @@ export default function Header() {
               }`}
             >
               My Profile
+            </Link>
+            <Link
+              href="/jobs?fromProfile=true"
+              className={`text-sm font-medium transition-colors ${
+                isActive('/jobs')
+                  ? 'text-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Matching Jobs
             </Link>
           </nav>
 
@@ -130,7 +130,7 @@ export default function Header() {
                         </span>
                       </Link>
                       <Link
-                        href="/jobs"
+                        href="/jobs?fromProfile=true"
                         onClick={() => setShowDropdown(false)}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
@@ -138,7 +138,7 @@ export default function Header() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
-                          My Jobs
+                          Matching Jobs
                         </span>
                       </Link>
                       <div className="border-t border-gray-100 mt-1">

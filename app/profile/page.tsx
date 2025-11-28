@@ -229,25 +229,24 @@ export default function ProfilePage() {
   }, []);
 
   // Check if profile has minimum required fields filled
-  const isProfileComplete = () => {
+  const isProfileComplete = (p: Partial<UserProfile>) => {
     return !!(
-      profile.firstName &&
-      profile.lastName &&
-      profile.email &&
-      profile.country &&
-      profile.currentLocation &&
-      profile.experienceLevel &&
-      profile.primarySkills?.length &&
-      profile.primarySkills.length >= 3
+      p.firstName &&
+      p.lastName &&
+      p.country &&
+      p.currentLocation &&
+      p.primarySkills?.length &&
+      p.primarySkills.length >= 1
     );
   };
 
   // Set hasExistingProfile when profile loads
   useEffect(() => {
-    if (!loading && isProfileComplete()) {
-      setHasExistingProfile(true);
+    if (!loading) {
+      const complete = isProfileComplete(profile);
+      setHasExistingProfile(complete);
     }
-  }, [loading, profile]);
+  }, [loading, profile.firstName, profile.lastName, profile.country, profile.currentLocation, profile.primarySkills]);
 
   // Countries and cities
   const countries = [
