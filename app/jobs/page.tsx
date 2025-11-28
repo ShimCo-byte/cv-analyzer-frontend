@@ -287,7 +287,7 @@ export default function JobsPage() {
             }
           },
           (response) => {
-            if (chrome.runtime.lastError) {
+            if (chrome?.runtime?.lastError) {
               showExtensionInstallPrompt(job);
             } else if (response?.success) {
               console.log('Auto Apply initiated');
