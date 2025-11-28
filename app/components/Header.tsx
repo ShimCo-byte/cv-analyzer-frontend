@@ -57,6 +57,16 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
+              href="/dashboard"
+              className={`text-sm font-medium transition-colors ${
+                isActive('/dashboard')
+                  ? 'text-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Dashboard
+            </Link>
+            <Link
               href="/profile"
               className={`text-sm font-medium transition-colors ${
                 isActive('/profile')
@@ -75,6 +85,26 @@ export default function Header() {
               }`}
             >
               Matching Jobs
+            </Link>
+            <Link
+              href="/saved-jobs"
+              className={`text-sm font-medium transition-colors ${
+                isActive('/saved-jobs')
+                  ? 'text-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Saved Jobs
+            </Link>
+            <Link
+              href="/career-tips"
+              className={`text-sm font-medium transition-colors ${
+                isActive('/career-tips')
+                  ? 'text-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Career Tips
             </Link>
           </nav>
 
