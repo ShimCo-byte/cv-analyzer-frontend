@@ -3,8 +3,8 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'CV Analyzer - Job Fit Analysis',
-  description: 'Analyze your resume and get personalized recommendations for your career',
+  title: 'Match Your Job - Find Your Perfect Career',
+  description: 'Analyze your resume and get personalized job recommendations that match your skills',
 }
 
 export default function RootLayout({
