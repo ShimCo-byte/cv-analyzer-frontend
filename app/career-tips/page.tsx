@@ -269,7 +269,7 @@ export default function CareerTipsPage() {
 
 
         {/* Tips Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {tips.map((tip) => (
             <div
               key={tip.id}
