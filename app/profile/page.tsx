@@ -251,6 +251,11 @@ export default function ProfilePage() {
     if (!loading) {
       const complete = isProfileComplete(profile);
       setHasExistingProfile(complete);
+      // If profile is complete and we're not explicitly editing, stay in view mode
+      // This prevents the "flash" of edit mode when loading
+      if (complete && !isEditing) {
+        setIsEditing(false);
+      }
     }
   }, [loading, profile.firstName, profile.lastName, profile.country, profile.currentLocation, profile.primarySkills]);
 
@@ -453,6 +458,18 @@ export default function ProfilePage() {
       alert('Failed to save profile. Please try again.');
     }
   };
+
+  // Show loading screen while checking profile
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   // Profile Summary Component (shown when profile exists and not editing)
   const ProfileSummary = () => (

@@ -4,12 +4,30 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../components/Header';
+import JobDetailModal from '../components/JobDetailModal';
+import { getMatchedJobsForProfile } from '@/lib/api';
 
 interface ProfileStats {
   completionPercent: number;
   skillsCount: number;
   experienceYears: number;
   savedJobsCount: number;
+}
+
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  url: string;
+  source: string;
+  description: string;
+  type: string;
+  experienceLevel: string;
+  postedDate: string;
+  salary?: string;
+  matchScore?: number;
+  matchReasons?: string[];
 }
 
 export default function DashboardPage() {
@@ -20,9 +38,11 @@ export default function DashboardPage() {
     experienceYears: 0,
     savedJobsCount: 0,
   });
-  const [recentJobs, setRecentJobs] = useState<any[]>([]);
+  const [recentJobs, setRecentJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showJobDetail, setShowJobDetail] = useState(false);
 
   useEffect(() => {
     // Load profile data
@@ -62,15 +82,29 @@ export default function DashboardPage() {
       }
     }
 
-    // Load recent matching jobs (mock data for now)
-    setRecentJobs([
-      { id: 1, title: 'Senior Frontend Developer', company: 'Tech Corp', match: 92, location: 'Bratislava' },
-      { id: 2, title: 'Full Stack Engineer', company: 'StartupXY', match: 87, location: 'Remote' },
-      { id: 3, title: 'React Developer', company: 'Digital Agency', match: 85, location: 'Košice' },
-    ]);
+    // Load recent matching jobs from API
+    const loadMatchingJobs = async () => {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        try {
+          const profile = JSON.parse(savedProfile);
+          const matchedJobs = await getMatchedJobsForProfile(profile);
+          // Take top 3 jobs for dashboard
+          setRecentJobs(matchedJobs.slice(0, 3));
+        } catch (error) {
+          console.error('Error loading matching jobs:', error);
+        }
+      }
+      setLoading(false);
+    };
 
-    setLoading(false);
+    loadMatchingJobs();
   }, []);
+
+  const handleJobClick = (job: Job) => {
+    setSelectedJob(job);
+    setShowJobDetail(true);
+  };
 
   if (loading) {
     return (
@@ -230,34 +264,59 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="space-y-4">
-              {recentJobs.map((job) => (
-                <div key={job.id} className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-200 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
-                      {job.company.charAt(0)}
+              {recentJobs.length > 0 ? (
+                recentJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    onClick={() => handleJobClick(job)}
+                    className="flex items-center justify-between p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold">
+                        {job.company.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">{job.title}</h3>
+                        <p className="text-sm text-gray-500">{job.company} • {job.location}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">{job.title}</h3>
-                      <p className="text-sm text-gray-500">{job.company} • {job.location}</p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600">{job.matchScore || 0}%</p>
+                        <p className="text-xs text-gray-500">match</p>
+                      </div>
+                      <div className="p-2 text-gray-400 group-hover:text-blue-600 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-green-600">{job.match}%</p>
-                      <p className="text-xs text-gray-500">match</p>
-                    </div>
-                    <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No matching jobs found yet.</p>
+                  <Link href="/profile" className="text-blue-600 hover:text-blue-700 mt-2 inline-block">
+                    Complete your profile to see matches
+                  </Link>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </main>
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={showJobDetail}
+          onClose={() => {
+            setShowJobDetail(false);
+            setSelectedJob(null);
+          }}
+        />
+      )}
     </div>
   );
 }

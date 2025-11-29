@@ -181,20 +181,23 @@ function JobsPageContent() {
     }
   }
 
-  const handleApplyNow = async (job: Job) => {
+  const handleApplyNow = (job: Job) => {
     setSelectedJob(job);
+    setGeneratedResume('');
     setShowResumeModal(true);
+  };
 
-    if (userProfile) {
-      setLoadingResume(true);
-      try {
-        const result = await getPersonalizedResume(userProfile, job.id);
-        if (result?.resume) setGeneratedResume(result.resume);
-      } catch (error) {
-        console.error('Error generating resume:', error);
-      } finally {
-        setLoadingResume(false);
-      }
+  const handleGenerateResume = async () => {
+    if (!selectedJob || !userProfile) return;
+
+    setLoadingResume(true);
+    try {
+      const result = await getPersonalizedResume(userProfile, selectedJob.id);
+      if (result?.resume) setGeneratedResume(result.resume);
+    } catch (error) {
+      console.error('Error generating resume:', error);
+    } finally {
+      setLoadingResume(false);
     }
   };
 
@@ -236,23 +239,12 @@ function JobsPageContent() {
     localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
   };
 
-  const handleGetResumeFromDetail = async () => {
+  const handleGetResumeFromDetail = () => {
     if (!detailJob) return;
     setSelectedJob(detailJob);
+    setGeneratedResume('');
     setShowJobDetail(false);
     setShowResumeModal(true);
-
-    if (userProfile) {
-      setLoadingResume(true);
-      try {
-        const result = await getPersonalizedResume(userProfile, detailJob.id);
-        if (result?.resume) setGeneratedResume(result.resume);
-      } catch (error) {
-        console.error('Error generating resume:', error);
-      } finally {
-        setLoadingResume(false);
-      }
-    }
   };
 
   const formatDate = (dateString: string) => {
@@ -585,11 +577,12 @@ function JobsPageContent() {
       {selectedJob && (
         <ResumeModal
           isOpen={showResumeModal}
-          onClose={() => { setShowResumeModal(false); setSelectedJob(null); }}
+          onClose={() => { setShowResumeModal(false); setSelectedJob(null); setGeneratedResume(''); }}
           resume={generatedResume}
           jobTitle={selectedJob.title}
           jobCompany={selectedJob.company}
           loading={loadingResume}
+          onGenerate={handleGenerateResume}
         />
       )}
 
