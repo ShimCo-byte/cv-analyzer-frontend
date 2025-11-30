@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { checkHealth } from '@/lib/api';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 export default function Home() {
   const router = useRouter();
@@ -108,6 +109,9 @@ export default function Home() {
 
       </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
