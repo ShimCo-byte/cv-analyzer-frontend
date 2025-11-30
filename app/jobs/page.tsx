@@ -221,7 +221,7 @@ function JobsPageContent() {
         return next;
       });
     } else {
-      // Add to saved
+      // Add to saved with full job details for the modal
       savedJobs.push({
         id: job.id,
         title: job.title,
@@ -232,6 +232,12 @@ function JobsPageContent() {
         employmentType: job.type,
         url: job.url,
         savedAt: new Date().toISOString(),
+        description: job.description,
+        type: job.type,
+        experienceLevel: job.experienceLevel,
+        source: job.source,
+        postedDate: job.postedDate,
+        matchReasons: job.matchReasons,
       });
       setSavedJobIds(prev => new Set(prev).add(job.id));
     }

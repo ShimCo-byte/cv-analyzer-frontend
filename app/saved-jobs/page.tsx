@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
+import JobDetailModal from '../components/JobDetailModal';
 
 interface SavedJob {
   id: string;
@@ -14,11 +15,19 @@ interface SavedJob {
   savedAt: string;
   employmentType?: string;
   url?: string;
+  description?: string;
+  type?: string;
+  experienceLevel?: string;
+  source?: string;
+  postedDate?: string;
+  matchReasons?: string[];
 }
 
 export default function SavedJobsPage() {
   const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showJobDetail, setShowJobDetail] = useState(false);
+  const [detailJob, setDetailJob] = useState<SavedJob | null>(null);
 
   useEffect(() => {
     loadSavedJobs();
@@ -49,6 +58,36 @@ export default function SavedJobsPage() {
       localStorage.removeItem('savedJobs');
     }
   };
+
+  const handleJobClick = (job: SavedJob) => {
+    setDetailJob(job);
+    setShowJobDetail(true);
+  };
+
+  const handleToggleSaveFromModal = () => {
+    if (detailJob) {
+      removeJob(detailJob.id);
+      setShowJobDetail(false);
+      setDetailJob(null);
+    }
+  };
+
+  // Convert SavedJob to the format expected by JobDetailModal
+  const convertToModalJob = (job: SavedJob) => ({
+    id: job.id,
+    title: job.title,
+    company: job.company,
+    location: job.location,
+    url: job.url || '',
+    source: job.source || 'Saved',
+    postedDate: job.postedDate || job.savedAt,
+    description: job.description || `${job.title} position at ${job.company}`,
+    type: job.employmentType || job.type || 'Full Stack',
+    experienceLevel: job.experienceLevel || 'Mid',
+    salary: job.salary,
+    matchScore: job.matchScore,
+    matchReasons: job.matchReasons,
+  });
 
   if (loading) {
     return (
@@ -114,7 +153,8 @@ export default function SavedJobsPage() {
             {savedJobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:border-blue-200 transition-colors"
+                onClick={() => handleJobClick(job)}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:border-blue-200 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -168,6 +208,7 @@ export default function SavedJobsPage() {
                           href={job.url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="View Job"
                         >
@@ -177,7 +218,7 @@ export default function SavedJobsPage() {
                         </a>
                       )}
                       <button
-                        onClick={() => removeJob(job.id)}
+                        onClick={(e) => { e.stopPropagation(); removeJob(job.id); }}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="Remove"
                       >
@@ -193,6 +234,17 @@ export default function SavedJobsPage() {
           </div>
         )}
       </main>
+
+      {/* Job Detail Modal */}
+      {detailJob && (
+        <JobDetailModal
+          isOpen={showJobDetail}
+          onClose={() => { setShowJobDetail(false); setDetailJob(null); }}
+          job={convertToModalJob(detailJob)}
+          isSaved={true}
+          onToggleSave={handleToggleSaveFromModal}
+        />
+      )}
     </div>
   );
 }
