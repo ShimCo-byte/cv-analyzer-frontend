@@ -68,62 +68,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* How It Works - Ako to funguje */}
-        <div className="mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12">
-            Ako to funguje?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 text-white">
-              <div className="absolute -top-4 -left-4 bg-white text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg border-4 border-blue-500">
-                1
-              </div>
-              <div className="flex items-center justify-center mb-6 mt-4">
-                <svg className="h-16 w-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-xl mb-3">Vyplň krátky kvíz</h3>
-              <p className="text-white/90 leading-relaxed">
-                Povedz nám o sebe, svojich schopnostiach a preferenciách. Trvá to len 2 minúty.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="relative bg-gradient-to-br from-purple-500 to-pink-600 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 text-white">
-              <div className="absolute -top-4 -left-4 bg-white text-purple-600 w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg border-4 border-purple-500">
-                2
-              </div>
-              <div className="flex items-center justify-center mb-6 mt-4">
-                <svg className="h-16 w-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-xl mb-3">Získaj odporúčania</h3>
-              <p className="text-white/90 leading-relaxed">
-                Na základe tvojho profilu ti nájdeme práce, ktoré sú pre teba najvhodnejšie.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="relative bg-gradient-to-br from-green-500 to-emerald-600 p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 text-white">
-              <div className="absolute -top-4 -left-4 bg-white text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg border-4 border-green-500">
-                3
-              </div>
-              <div className="flex items-center justify-center mb-6 mt-4">
-                <svg className="h-16 w-16 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-xl mb-3">Prihlás sa</h3>
-              <p className="text-white/90 leading-relaxed">
-                Vyber si prácu a prihlás sa priamo cez našu platformu. Jednoduché a rýchle.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Features */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 border border-gray-100">
