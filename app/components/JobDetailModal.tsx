@@ -2,6 +2,60 @@
 
 import { useEffect } from 'react';
 
+// Simple markdown parser for job descriptions
+function parseJobDescription(text: string) {
+  if (!text) return null;
+
+  const lines = text.split('\n');
+  const elements: JSX.Element[] = [];
+  let key = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // ## Heading
+    if (line.startsWith('## ')) {
+      elements.push(
+        <h3 key={key++} className="text-lg font-semibold text-gray-900 mt-6 mb-3 first:mt-0">
+          {line.substring(3)}
+        </h3>
+      );
+    }
+    // **Bold text:** value
+    else if (line.startsWith('**') && line.includes(':**')) {
+      const match = line.match(/^\*\*(.+?):\*\*\s*(.*)$/);
+      if (match) {
+        elements.push(
+          <p key={key++} className="text-gray-700 mb-1">
+            <strong className="font-semibold text-gray-900">{match[1]}:</strong> {match[2]}
+          </p>
+        );
+      } else {
+        elements.push(<p key={key++} className="text-gray-700">{line}</p>);
+      }
+    }
+    // • Bullet point
+    else if (line.startsWith('• ')) {
+      elements.push(
+        <li key={key++} className="flex items-start gap-2 text-gray-700 ml-4">
+          <span className="text-blue-500 mt-1">•</span>
+          <span>{line.substring(2)}</span>
+        </li>
+      );
+    }
+    // Empty line
+    else if (line.trim() === '') {
+      elements.push(<div key={key++} className="h-2" />);
+    }
+    // Regular text
+    else {
+      elements.push(<p key={key++} className="text-gray-700">{line}</p>);
+    }
+  }
+
+  return <div className="space-y-1">{elements}</div>;
+}
+
 interface Job {
   id: string;
   title: string;
@@ -142,8 +196,14 @@ export default function JobDetailModal({ isOpen, onClose, job, onGetResume, hasP
 
             {/* Description */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">About the Role</h3>
-              <div className="text-gray-700 whitespace-pre-line">{job.fullDescription || job.description}</div>
+              {job.fullDescription ? (
+                parseJobDescription(job.fullDescription)
+              ) : (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">About the Role</h3>
+                  <div className="text-gray-700 whitespace-pre-line">{job.description}</div>
+                </>
+              )}
             </div>
 
             {/* Requirements */}
